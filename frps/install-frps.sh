@@ -8,13 +8,13 @@ export PATH
 #   Intro:  http://koolshare.cn/forum-72-1.html
 #===============================================================================================
 program_name="frps"
-version="1.8.5"
+version="1.8.6"
 str_program_dir="/usr/local/${program_name}"
 program_init="/etc/init.d/${program_name}"
 program_config_file="frps.ini"
 ver_file="/tmp/.frp_ver.sh"
-program_version_link="https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/frps/version.sh"
-str_install_shell=https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/frps/install-frps.sh
+program_version_link="https://gitee.com/DLGCY_Clone/onekey-install-shell/raw/dlgcy/frps/version.sh"
+str_install_shell=https://gitee.com/DLGCY_Clone/onekey-install-shell/raw/dlgcy/frps/install-frps.sh
 shell_update(){
     fun_clangcn "clear"
     echo "Check updates for shell..."
@@ -180,10 +180,10 @@ fun_get_version(){
     fi
 }
 fun_getServer(){
-    def_server_url="aliyun"
+    def_server_url="HK"
     echo ""
     echo -e "Please select ${program_name} download url:"
-    echo -e "[1].aliyun (default)"
+    echo -e "[1].HK (default)"
     echo -e "[2].github"
     read -p "Enter your choice (1, 2 or exit. default [${def_server_url}]): " set_server_url
     [ -z "${set_server_url}" ] && set_server_url="${def_server_url}"
