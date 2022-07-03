@@ -8,7 +8,7 @@ export PATH
 #   Intro:  http://koolshare.cn/forum-72-1.html
 #===============================================================================================
 program_name="frps"
-version="1.8.6"
+version="1.9"
 str_program_dir="/usr/local/${program_name}"
 program_init="/etc/init.d/${program_name}"
 program_config_file="frps.ini"
@@ -174,22 +174,54 @@ fun_get_version(){
         [ -x ${ver_file} ] && chmod +x ${ver_file}
         . ${ver_file}
     fi
-    if [ -z ${FRPS_VER} ] || [ -z ${FRPS_INIT} ] || [ -z ${aliyun_download_url} ] || [ -z ${github_download_url} ]; then
+    if [ -z ${FRPS_VER} ] || [ -z ${FRPS_INIT} ] || [ -z ${fast_download_url} ] || [ -z ${github_download_url} ]; then
         echo -e "${COLOR_RED}Error: ${COLOR_END}Get Program version failed!"
         exit 1
     fi
+
+    program_version=${FRPS_VER}
+    def_ver="1"
+    echo ""
+    echo -e "Please select version choose mode:"
+    echo -e "[1].File (read from version file)"
+    echo -e "[2].Manual (input, like [0.43.0], refer to https://github.com/fatedier/frp/releases)"
+    read -p "Enter your choice (1, 2 or exit. default [${def_ver}]): " set_ver_mode
+    [ -z "${set_ver_mode}" ] && set_ver_mode="${def_ver}"
+    case "${set_ver_mode}" in
+        1|[Ff][Ii][Ll][Ee])
+            ;;
+        2|[Mm][Aa][Nu][Uu][Aa][Ll])
+            echo -e "Please enter version:"
+            read -p "Enter version:" set_ver
+            if [ -z "${set_ver}" ]; then 
+                set_ver="${FRPS_VER}"
+            else 
+                echo "Got it"
+            fi
+            program_version=${set_ver}
+            ;;
+        [eE][xX][iI][tT])
+            exit 1
+            ;;
+        *)
+            program_version=${FRPS_VER}
+            ;;
+    esac
+    echo "---------------------------------------"
+    echo "Version Selected: ${program_version}"
+    echo "---------------------------------------"
 }
 fun_getServer(){
-    def_server_url="HK"
+    def_server_url="Fast"
     echo ""
     echo -e "Please select ${program_name} download url:"
-    echo -e "[1].HK (default)"
+    echo -e "[1].Fast (HK) (default)"
     echo -e "[2].github"
     read -p "Enter your choice (1, 2 or exit. default [${def_server_url}]): " set_server_url
     [ -z "${set_server_url}" ] && set_server_url="${def_server_url}"
     case "${set_server_url}" in
-        1|[Aa][Ll][Ii][Yy][Uu][Nn])
-            program_download_url=${aliyun_download_url}
+        1|[Ff][Aa][Ss][Tt])
+            program_download_url=${fast_download_url}
             ;;
         2|[Gg][Ii][Tt][Hh][Uu][Bb])
             program_download_url=${github_download_url}
@@ -198,7 +230,7 @@ fun_getServer(){
             exit 1
             ;;
         *)
-            program_download_url=${aliyun_download_url}
+            program_download_url=${fast_download_url}
             ;;
     esac
     echo "---------------------------------------"
@@ -207,8 +239,8 @@ fun_getServer(){
 }
 fun_getVer(){
     echo -e "Loading network version for ${program_name}, please wait..."
-    program_latest_filename="frp_${FRPS_VER}_linux_${ARCHS}.tar.gz"
-    program_latest_file_url="${program_download_url}/v${FRPS_VER}/${program_latest_filename}"
+    program_latest_filename="frp_${program_version}_linux_${ARCHS}.tar.gz"
+    program_latest_file_url="${program_download_url}/v${program_version}/${program_latest_filename}"
     if [ -z "${program_latest_filename}" ]; then
         echo -e "${COLOR_RED}Load network version failed!!!${COLOR_END}"
     else
@@ -218,14 +250,14 @@ fun_getVer(){
 fun_download_file(){
     # download
     if [ ! -s ${str_program_dir}/${program_name} ]; then
-        rm -fr ${program_latest_filename} frp_${FRPS_VER}_linux_${ARCHS}
+        rm -fr ${program_latest_filename} frp_${program_version}_linux_${ARCHS}
         if ! wget --no-check-certificate -q ${program_latest_file_url} -O ${program_latest_filename}; then
             echo -e " ${COLOR_RED}failed${COLOR_END}"
             exit 1
         fi
         tar xzf ${program_latest_filename}
-        mv frp_${FRPS_VER}_linux_${ARCHS}/frps ${str_program_dir}/${program_name}
-        rm -fr ${program_latest_filename} frp_${FRPS_VER}_linux_${ARCHS}
+        mv frp_${program_version}_linux_${ARCHS}/frps ${str_program_dir}/${program_name}
+        rm -fr ${program_latest_filename} frp_${program_version}_linux_${ARCHS}
     fi
     chown root:root -R ${str_program_dir}
     if [ -s ${str_program_dir}/${program_name} ]; then
@@ -809,8 +841,8 @@ update_program_server_clang(){
         fun_getVer >/dev/null 2>&1
         local_program_version=`${str_program_dir}/${program_name} --version`
         echo -e "${COLOR_GREEN}${program_name}  local version ${local_program_version}${COLOR_END}"
-        echo -e "${COLOR_GREEN}${program_name} remote version ${FRPS_VER}${COLOR_END}"
-        if [[ "${local_program_version}" != "${FRPS_VER}" ]];then
+        echo -e "${COLOR_GREEN}${program_name} remote version ${program_version}${COLOR_END}"
+        if [[ "${local_program_version}" != "${program_version}" ]];then
             echo -e "${COLOR_GREEN}Found a new version,update now!!!${COLOR_END}"
             ${program_init} stop
             sleep 1

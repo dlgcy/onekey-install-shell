@@ -35,3 +35,10 @@ chmod 700 ./install-frps.sh
     Usage: /etc/init.d/frps {start|stop|restart|status|config|version}
 ```
 
+## dlgcy.com
+
+### 20220703
+
+更新默认 Frp 版本为 0.43.0，且增加版本输入功能（后续frp版本更新，此脚本应该不用更新了）。
+
+![1656843628973.png](images/1656843628973.png)
